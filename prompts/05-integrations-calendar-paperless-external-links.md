@@ -12,11 +12,17 @@ Integrations decide how external systems display or reference that data.
 
 Use read-only ICS calendar feeds. Do not implement CalDAV write sync for the MVP.
 
-Default:
+Feed configuration lives in the `calendar_feeds` table (see [`02-database-schema.md`](./02-database-schema.md) for column definitions). Each home gets one feed by default:
 
 ```text
 one ICS feed per home
 ```
+
+Per-user feeds are supported via `calendar_feeds.user_id` but are optional.
+
+### Feed URL rotation
+
+Each feed has a unique random `token` that appears in its URL. If a token leaks (shared accidentally, posted online), the home owner can rotate it from a Filament action on the `CalendarFeed` record — the action generates a new token, invalidates the old URL immediately, and the owner re-subscribes with the new URL in their calendar client.
 
 Avoid default-per-category calendars. Use emojis and title prefixes instead.
 
@@ -124,3 +130,11 @@ construction progress
 defect photos
 contact profile photos
 ```
+
+## Future integrations (out of MVP scope)
+
+The following integrations are intentionally deferred. The data model permits them later without rework — they are listed here so they aren't forgotten:
+
+- **Home Assistant**: this app could expose REST endpoints / webhooks so HA can show due maintenance, trigger automations when a task becomes overdue, or push completion events back. No design work in MVP.
+- **Paperless-ngx webhook receiver**: Paperless-ngx can fire a webhook when a new document is filed. A receiver in this app could match the document against assets/work items and auto-suggest a `paperless_link` row. Useful, but manual link creation works for MVP.
+- **Push notification channels**: ntfy, email, in-app — `recurring_rules.reminder_days_before` and `auto_create_days_before_due` already exist in the schema, but no delivery channel is committed to in the planning docs. ICS feed is the only notification surface in MVP.

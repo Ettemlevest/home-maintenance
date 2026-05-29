@@ -17,53 +17,53 @@ The app should be useful immediately after creating a home. Seed data should cre
 
 ### System tags
 
-```text
-hvac
-plumbing
-electrical
-low-voltage
-hot-water
-sewage
-rainwater
-building-envelope
-roof
-windows-doors
-sip-structure
-garden
-exterior
-interior
-security
-internet-network
-```
+| Slug | Hungarian display name | Type | Sort order |
+|---|---|---|---|
+| hvac | HVAC / hőszivattyú | system | 100 |
+| plumbing | Vízrendszer | system | 110 |
+| electrical | Villamos rendszer | system | 120 |
+| low-voltage | Gyengeáram | system | 130 |
+| hot-water | HMV | system | 140 |
+| sewage | Szennyvíz | system | 150 |
+| rainwater | Csapadékvíz | system | 160 |
+| building-envelope | Épületburok | system | 170 |
+| roof | Tető | system | 180 |
+| windows-doors | Nyílászárók | system | 190 |
+| sip-structure | SIP szerkezet | system | 200 |
+| garden | Kert | system | 210 |
+| exterior | Kültér | system | 220 |
+| interior | Beltér | system | 230 |
+| security | Biztonságtechnika | system | 240 |
+| internet-network | Internet / hálózat | system | 250 |
 
 ### Topic tags
 
-```text
-safety
-warranty
-annual-service
-cleaning
-inspection
-documentation
-urgent-risk
-energy-efficiency
-child-safe
-contractor-needed
-```
+| Slug | Hungarian display name | Type | Sort order |
+|---|---|---|---|
+| safety | Biztonság | topic | 300 |
+| warranty | Garancia | topic | 310 |
+| annual-service | Éves szerviz | topic | 320 |
+| cleaning | Tisztítás | topic | 330 |
+| inspection | Ellenőrzés | topic | 340 |
+| documentation | Dokumentáció | topic | 350 |
+| urgent-risk | Sürgős kockázat | topic | 360 |
+| energy-efficiency | Energiahatékonyság | topic | 370 |
+| child-safe | Gyerekbiztonság | topic | 380 |
+| contractor-needed | Szakember szükséges | topic | 390 |
 
 ### Cost category tags
 
-```text
-cost-hvac
-cost-plumbing
-cost-electrical
-cost-garden
-cost-roof
-cost-exterior
-cost-appliance
-cost-safety
-cost-general-maintenance
-```
+| Slug | Hungarian display name | Type | Sort order |
+|---|---|---|---|
+| cost-hvac | Költség: HVAC | cost_category | 500 |
+| cost-plumbing | Költség: Víz/gépészet | cost_category | 510 |
+| cost-electrical | Költség: Villany | cost_category | 520 |
+| cost-garden | Költség: Kert | cost_category | 530 |
+| cost-roof | Költség: Tető | cost_category | 540 |
+| cost-exterior | Költség: Kültér | cost_category | 550 |
+| cost-appliance | Költség: Háztartási gép | cost_category | 560 |
+| cost-safety | Költség: Biztonság | cost_category | 570 |
+| cost-general-maintenance | Költség: Általános karbantartás | cost_category | 580 |
 
 ## Seed locations
 
@@ -170,3 +170,15 @@ Tető szemrevételezés: yearly, rolling window 30 days
 Padlástér és födém szemrevételezés: every 6 months, rolling window 30 days
 Nyílászáró csatlakozások ellenőrzése: yearly, rolling window 30 days
 ```
+
+## Multi-unit assets (smoke detectors, RCDs, identical fixtures)
+
+A household typically has several identical or near-identical units of the same asset type — for example 9 smoke detectors from 3 different manufacturers, each requiring different maintenance intervals.
+
+The recommended workflow does not bake these into seed data directly. Instead:
+
+1. Seed creates **one** prototype asset per manufacturer (e.g. `Füstérzékelő — gyártó A`, `Füstérzékelő — gyártó B`, `Füstérzékelő — gyártó C`).
+2. Each prototype has its manufacturer-specific recurring rules attached (battery replacement, test interval, replace-after-years).
+3. The user runs the **"Duplicate N times"** Filament admin action on each prototype to expand it into the actual count of units installed (e.g. duplicate `Füstérzékelő — gyártó A` 4 times → 4 numbered instances). The action clones the source asset's recurring rules so each new asset has its own schedule and can be tested/serviced independently.
+
+This keeps the seed data lean while supporting the real-world case of many identical units without manual repetition.

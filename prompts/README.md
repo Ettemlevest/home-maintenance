@@ -8,3 +8,4 @@
 - [Seed Data](./06-seed-data.md)
 - [Dashboard and UX](./07-dashboard-and-ux.md)
 - [Architecture and Business Logic](./08-architecture-and-business-logic.md)
+- [Deployment](./09-deployment.md)

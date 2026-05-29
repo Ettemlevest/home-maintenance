@@ -11,6 +11,7 @@ homes
 - city nullable
 - postal_code nullable
 - country nullable
+- default_currency default 'HUF'
 - notes nullable
 - created_at
 - updated_at
@@ -39,9 +40,11 @@ assets
 - home_id
 - location_id nullable
 - parent_id nullable
+- replaced_by_asset_id nullable -- self-reference; set when status transitions to `replaced`
+- slug unique -- short URL-safe identifier for `/a/{slug}` resolution and QR-coded labels
 - name
 - type -- building_part, appliance, fixture, device, system, structure, furniture, outdoor_equipment, utility_connection, other
-- status -- active, needs_attention, broken, inactive, replaced, discarded
+- status -- active, needs_attention, inactive, replaced, discarded
 - condition -- excellent, good, fair, poor, broken, unknown
 - condition_updated_at nullable
 - manufacturer nullable
@@ -79,11 +82,11 @@ work_items
 - estimated_minutes nullable
 - actual_minutes nullable
 - estimated_cost nullable
-- actual_cost nullable
-- currency default 'HUF'
+- currency default home.default_currency
 - assigned_to_user_id nullable
 - created_by_user_id nullable
-- source -- manual, recurring_rule, followup, inspection, warranty, imported, other
+- completed_by_user_id nullable -- populated when status transitions to `completed`
+- source -- manual, recurring_rule, followup, imported, other
 - materials_text nullable
 - tools_text nullable
 - safety_notes nullable
@@ -145,17 +148,17 @@ recurring_rules
 - home_id
 - location_id nullable
 - asset_id nullable
-- type -- task, maintenance, test, inspection, cleaning
+- type -- task, maintenance, repair, test, inspection, cleaning, replacement
 - title
 - description nullable
 - priority -- low, normal, high, urgent
 - severity nullable -- minor, moderate, major, critical
 - estimated_minutes nullable
 - estimated_cost nullable
-- currency default 'HUF'
+- currency default home.default_currency
 - interval_unit -- day, week, month, year
 - interval_count unsigned integer
-- reschedule_from -- completed_at, fixed_anchor
+- reschedule_from -- completed_at, fixed_anchor, previous_due_at
 - only_after_success boolean default true
 - window_strategy -- exact_day, rolling_window, calendar_month, calendar_season
 - window_length_days nullable
@@ -200,8 +203,23 @@ contacts
 - email nullable
 - phone nullable
 - website nullable
-- profile_photo_id nullable
 - notes nullable
+- created_at
+- updated_at
+```
+
+The contact's display photo comes from the polymorphic `photos` table with `photoable_type = Contact` and `type = profile` — the latest such photo by `taken_at` (fallback `created_at`) is shown. There is no dedicated `profile_photo_id` column.
+
+## `work_item_contacts`
+
+Pivot table linking contacts to work items, so the app can answer "which contractor performed this service?" or "which inspector validated this test?".
+
+```sql
+work_item_contacts
+- id
+- work_item_id
+- contact_id
+- role -- performer, inspector, supplier, warranty_contact, helper, quoted_by
 - created_at
 - updated_at
 ```
@@ -215,16 +233,23 @@ photos
 - photoable_type
 - photoable_id
 - type -- general, before, after, issue, condition, profile, progress, other
-- filename
-- path
-- mime_type
-- size
 - taken_at nullable
 - caption nullable
 - notes nullable
 - sort_order default 0
 - created_at
 - updated_at
+```
+
+Physical file storage (`filename`, `path`, `mime_type`, `size`, generated conversions / thumbnails) is owned by [`spatie/laravel-medialibrary`](https://spatie.be/docs/laravel-medialibrary) via its own `media` table — the `photos` table here only keeps app-specific metadata (`type`, `taken_at`, `caption`, `notes`, `sort_order`) and the polymorphic owner reference.
+
+Allowed `photoable_type` values:
+
+```text
+assets
+work_items
+locations
+contacts
 ```
 
 ## `paperless_links`
@@ -248,6 +273,16 @@ paperless_links
 - updated_at
 ```
 
+Allowed `linkable_type` values:
+
+```text
+assets
+work_items
+contacts
+expenses
+locations
+```
+
 ## `external_links`
 
 ```sql
@@ -267,6 +302,16 @@ external_links
 - updated_at
 ```
 
+Allowed `linkable_type` values:
+
+```text
+assets
+work_items
+locations
+contacts
+recurring_rules
+```
+
 ## `expenses`
 
 ```sql
@@ -278,19 +323,21 @@ expenses
 - contact_id nullable
 - type -- material, labor, service, replacement, tool, delivery, warranty, other
 - amount
-- currency default 'HUF'
+- currency default home.default_currency
 - spent_at
 - description nullable
 - created_at
 - updated_at
 ```
 
+There is no `work_items.actual_cost` column. The actual cost of a work item is computed at display time as `SUM(expenses.amount WHERE work_item_id = …)`, optionally converted to a single base currency (see [`08-architecture-and-business-logic.md`](./08-architecture-and-business-logic.md)).
+
 ## `tags`
 
 ```sql
 tags
 - id
-- home_id nullable
+- home_id -- not nullable; tags are always home-scoped
 - name
 - slug
 - type -- season, system, area, topic, priority_theme, cost_category, custom
@@ -348,6 +395,7 @@ users
 - name
 - email
 - password
+- locale nullable -- UI language; falls back to home or app default
 - created_at
 - updated_at
 
@@ -364,8 +412,9 @@ home_users
 
 ```sql
 locations: home_id, parent_id
-assets: home_id, location_id, parent_id, status, condition
-work_items: home_id/status, home_id/hard_due_at, home_id/due_window_start, home_id/due_window_end, asset_id, location_id, recurring_rule_id, type, priority
+assets: home_id, location_id, parent_id, status, condition, replaced_by_asset_id, unique(slug)
+work_items: home_id/status, home_id/hard_due_at, home_id/due_window_start, home_id/due_window_end, asset_id, location_id, recurring_rule_id, type, priority, completed_by_user_id
+work_item_contacts: work_item_id, contact_id, role
 recurring_rules: home_id/is_active, home_id/next_due_at, asset_id, location_id
 tags: unique(home_id, slug), type, sort_order
 taggables: tag_id, taggable_type/taggable_id

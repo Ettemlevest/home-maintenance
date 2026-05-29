@@ -30,6 +30,8 @@ The app is not a project management tool. There is no `in_progress` status becau
 
 ## Work item result values
 
+A work item may have **multiple `work_item_results` rows over its lifetime** — for example a failed first attempt followed by a successful retry. The "current outcome" displayed in dashboards and used for recurrence advancement (see [`04-recurring-rules-and-scheduling.md`](./04-recurring-rules-and-scheduling.md)) is the **latest row by `created_at`**. Older rows are preserved as history.
+
 Status describes lifecycle. Result describes outcome.
 
 | Result | Meaning |
@@ -127,3 +129,27 @@ Urgency should increase as the end of the window approaches.
 91-100% elapsed = urgent
 after window = overdue
 ```
+
+The mapping from these urgency tiers to dashboard sections, visual treatment, and sort weight is defined in [`07-dashboard-and-ux.md`](./07-dashboard-and-ux.md).
+
+## Future extension: structured measurements with auto pass/fail
+
+The current model treats `work_item_steps.expected_result` as free text and stores a single `measured_value` + `measured_unit` on `work_item_results`. This is intentionally simple — household tests rarely need automated pass/fail evaluation.
+
+If structured measurement evaluation becomes useful later (for example, water pressure tests with a strict acceptable range, or insulation resistance checks with manufacturer-specified thresholds), the schema can be extended without re-deriving the design:
+
+```text
+work_item_steps additions:
+- measurement_type -- range, value, boolean, free_text
+- expected_min nullable
+- expected_max nullable
+- expected_value nullable
+- expected_unit nullable
+
+work_item_results (or a new per-step result table) additions:
+- actual_value nullable
+```
+
+Automatic PASS / FAIL evaluation would live in a service — either an extended `WorkItemDueStateService` or a dedicated `WorkItemEvaluationService` — comparing `actual_value` against the step's `measurement_type` rule.
+
+These columns are **not** part of the MVP. They are documented here so a future implementer can extend the schema consistently.
