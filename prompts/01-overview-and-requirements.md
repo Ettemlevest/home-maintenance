@@ -111,4 +111,5 @@ The intended deployment is a single Docker container runnable on an Unraid OS ho
 07-dashboard-and-ux.md
 08-architecture-and-business-logic.md
 09-deployment.md
+10-future-plans.md
 ```
