@@ -21,7 +21,7 @@ The source docs (`prompts/01`–`10`) describe the full product vision. This doc
 - One ICS calendar feed per home, token-rotatable
 - Dashboard: Needs Attention / Overdue / Due Now / Upcoming 30 Days / Recently Completed / Expected Cost
 - Simple cost forecasting (estimated costs forward, expense sums backward)
-- Seed data (tags, locations, assets, recurring rules) + "Duplicate N times" asset action
+- Seed data (tags, locations, assets, recurring rules — see [`04-seed-data.md`](./04-seed-data.md)) + "Duplicate N times" asset action
 - Bilingual HU/EN UI via standard Laravel lang files
 - Checklist steps on recurring rules and work items (late phase, optional)
 

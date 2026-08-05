@@ -206,10 +206,10 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 
 ### Phase 16: Seed data + "Duplicate N times"
 
-- Opt-in seeding on home creation ("start with a Hungarian family-house template" checkbox): tags, location tree, assets, and recurring rules from `prompts/06`, plus the smoke-detector prototype assets with per-manufacturer rules (closing `todo-items.md` #20).
-- "Duplicate N times" asset action: count + numbering pattern (`{n}` zero-padded), clones the source asset's recurring rules so each unit schedules independently.
+- Opt-in seeding on home creation ("start with a Hungarian family-house template" checkbox): tags, location tree, assets, and recurring rules from [`04-seed-data.md`](./04-seed-data.md) — the cleaned-up template that applies the location/asset rule, the four-type list, and multi-asset schedule rows (including the smoke-detector example, closing `todo-items.md` #20).
+- "Duplicate N times" asset action: count + numbering pattern (`{n}` zero-padded), attaches each clone to the source asset's rules via new schedule rows — rules are never cloned.
 
-**Done when:** a fresh seeded home immediately shows sensible upcoming work on the dashboard; duplicating a prototype ×4 yields 4 assets with 4 independent rules.
+**Done when:** a fresh seeded home immediately shows sensible upcoming work on the dashboard; duplicating a smoke detector ×4 yields 4 assets scheduling independently under the same rules.
 
 ### Phase 17: i18n + mobile pass
 

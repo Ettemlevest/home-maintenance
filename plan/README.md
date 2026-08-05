@@ -9,6 +9,7 @@ This directory turns the planning documents in [`../prompts/`](../prompts/) into
 | [`01-mvp-scope-and-simplifications.md`](./01-mvp-scope-and-simplifications.md) | What is in the MVP, what is simplified relative to the source docs, and what is deferred |
 | [`02-technical-decisions.md`](./02-technical-decisions.md) | Resolved technical decisions, including answers to the open items in `prompts/todo-items.md` |
 | [`03-implementation-phases.md`](./03-implementation-phases.md) | The step-by-step build order: 6 milestones, 18 small phases, each independently shippable |
+| [`04-seed-data.md`](./04-seed-data.md) | The opt-in "Hungarian family house" seed template — also the worked example of the data model (location/asset rule, four work item types, multi-asset rules) |
 
 ## Guiding principles
 
