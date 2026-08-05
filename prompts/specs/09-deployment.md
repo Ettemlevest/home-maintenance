@@ -1,5 +1,7 @@
 # Deployment
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 This document is a placeholder for the operational deployment guide. It is **not required** to complete the MVP planning set; it is called out so the deployment story is not lost.
 
 The intended deployment target is a single Docker container running on an Unraid OS home server.

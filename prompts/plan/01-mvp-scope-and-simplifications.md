@@ -1,6 +1,6 @@
 # MVP Scope and Simplifications
 
-The source docs (`prompts/01`–`10`) describe the full product vision. This document records what the MVP actually builds, and — importantly — where it **deliberately simplifies** relative to the source docs. Every simplification here favors less administration over more capability, per the core value statement: *minimum data entry, maximum long-term usefulness*.
+The source docs (`specs/01`–`10`) describe the full product vision. This document records what the MVP actually builds, and — importantly — where it **deliberately simplifies** relative to the source docs. Every simplification here favors less administration over more capability, per the core value statement: *minimum data entry, maximum long-term usefulness*.
 
 ## In MVP (built by the phases in `03-implementation-phases.md`)
 
@@ -28,7 +28,7 @@ The source docs (`prompts/01`–`10`) describe the full product vision. This doc
 
 ## Simplified relative to the source docs
 
-These are deviations from `prompts/02`–`08`. Each is a deliberate call; if real usage proves one wrong, the schema notes how to add it back.
+These are deviations from `specs/02`–`08`. Each is a deliberate call; if real usage proves one wrong, the schema notes how to add it back.
 
 | # | Source doc says | MVP does instead | Rationale |
 |---|---|---|---|
@@ -52,7 +52,7 @@ These are deviations from `prompts/02`–`08`. Each is a deliberate call; if rea
 - `needs_special_equipment` flag on work items and recurring rules — batching filter for rented-tool work
 - `recurring_rules.preferred_contact_id` — generated items carry who to call
 
-## Deferred (post-MVP, per `prompts/10-future-plans.md`)
+## Deferred (post-MVP, per `specs/10-future-plans.md`)
 
 Unchanged from the source docs — these stay deferred and this plan adds nothing to them:
 
@@ -65,4 +65,4 @@ Unchanged from the source docs — these stay deferred and this plan adds nothin
 
 ## Non-goals
 
-Unchanged from `prompts/01`: no inventory, procurement, accounting, document storage, tool tracking, CalDAV write sync, SaaS multi-tenancy, or vehicle maintenance.
+Unchanged from `specs/01`: no inventory, procurement, accounting, document storage, tool tracking, CalDAV write sync, SaaS multi-tenancy, or vehicle maintenance.

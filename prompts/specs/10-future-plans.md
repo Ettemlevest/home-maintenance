@@ -1,5 +1,7 @@
 # Future Plans
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 This document is the **index** of everything the planning set explicitly defers beyond MVP. It does not replace the descriptions in the original files — those remain authoritative — but consolidates them so a reader can see the full post-MVP backlog at a glance and know where each item is described in detail.
 
 Each entry below has:

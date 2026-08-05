@@ -1,5 +1,7 @@
 # Dashboard and UX
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 ## Design goal
 
 The dashboard should answer quickly:

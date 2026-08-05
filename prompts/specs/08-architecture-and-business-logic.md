@@ -1,5 +1,7 @@
 # Architecture and Business Logic
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 ## Recommended architecture
 
 Use a modular monolith.

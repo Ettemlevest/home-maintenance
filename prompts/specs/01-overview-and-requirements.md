@@ -1,5 +1,7 @@
 # Home Maintenance App — Overview and General Requirements
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 ## High-level summary
 
 This application is a lightweight self-hosted home maintenance system for family houses.

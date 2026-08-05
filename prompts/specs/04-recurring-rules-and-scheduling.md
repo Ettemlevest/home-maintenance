@@ -1,5 +1,7 @@
 # Recurring Rules and Scheduling
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 ## Purpose
 
 Recurring rules generate future work items.

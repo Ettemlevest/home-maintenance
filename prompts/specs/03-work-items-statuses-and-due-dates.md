@@ -1,5 +1,7 @@
 # Work Items, Statuses, Results, and Due Dates
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 ## Work item types
 
 ```text

@@ -1,6 +1,6 @@
 # Technical Decisions
 
-Resolved decisions the implementation follows. Numbers in parentheses reference the open items in [`../prompts/todo-items.md`](../prompts/todo-items.md); every schema-shaping item from that review is settled here so implementation never has to guess.
+Resolved decisions the implementation follows. Numbers in parentheses reference the open items in [`../archive/todo-items.md`](../archive/todo-items.md); every schema-shaping item from that review is settled here so implementation never has to guess.
 
 ## Authentication (#22)
 
@@ -12,7 +12,7 @@ Resolved decisions the implementation follows. Numbers in parentheses reference 
 
 - **Filament native multi-tenancy** with `Home` as the tenant model. Filament handles the active-home context, the home switcher, and URL scoping (`/{tenant}/...`) — no custom session plumbing.
 - Every top-level domain table carries `home_id` and a `BelongsToHome` trait applying a tenant global scope.
-- Child tables without `home_id` (`work_item_steps`, `work_item_results`, `work_item_contacts`, `recurring_rule_steps`) are **only ever read through their parent relationship**. They get no Filament resources of their own (relation managers / repeaters only), and no route model binding. This convention is stated in `AGENTS.md`/`CLAUDE.md` of the app repo when it is created.
+- Child tables without `home_id` (`work_item_steps`, `work_item_results`, `work_item_contacts`, `recurring_rule_steps`) are **only ever read through their parent relationship**. They get no Filament resources of their own (relation managers / repeaters only), and no route model binding. This convention is stated in this repository's `AGENTS.md`/`CLAUDE.md` once the app is scaffolded (Phase 0).
 - `home_users` gets `unique(home_id, user_id)` (#15).
 
 ## Location vs asset boundary
@@ -56,7 +56,7 @@ All closed value sets (`status`, `condition`, `type`, `priority`, `result`, `int
 ## Work item semantics
 
 - **Four work item types** (S11 in `01-mvp-scope-and-simplifications.md`): `task`, `inspection`, `repair`, `replacement`. Each has distinct behavior and a natural result vocabulary: task → done/skipped, inspection → passed/failed (absorbs `test`), repair → fixed/not_fixed, replacement → done (absorbs `installation`/`upgrade`, touches asset lineage). `maintenance` and `cleaning` fold into `task` (the `cleaning` topic tag covers filtering); `project` is dropped — `parent_id` groups sub-tasks under an umbrella work item.
-- Status = lifecycle, result = outcome, exactly as `prompts/03`. The identical label names (`failed` status vs `failed` result) are kept — renaming (#2) was considered and rejected: a status/result matrix in the app repo docs is enough, and the enum types (`WorkItemStatus::Failed` vs `WorkItemResult::Failed`) disambiguate in code.
+- Status = lifecycle, result = outcome, exactly as `specs/03`. The identical label names (`failed` status vs `failed` result) are kept — renaming (#2) was considered and rejected: a status/result matrix in the app repo docs is enough, and the enum types (`WorkItemStatus::Failed` vs `WorkItemResult::Failed`) disambiguate in code.
 - **Current result = latest `work_item_results` row by `created_at`.**
 - CHECK constraint on `work_items`: `due_window_start` and `due_window_end` are both null or both set, with `start <= end` (#16).
 - Steps never compute the parent's result (#19). The Complete action's result field is always an explicit user choice; if required steps are failed/pending the form shows a non-blocking warning.
@@ -67,7 +67,7 @@ All closed value sets (`status`, `condition`, `type`, `priority`, `result`, `int
 ## Recurrence semantics
 
 - **One rule, many schedules.** A `recurring_rules` row holds the definition (title, description, type, priority, estimates, free-text fields, steps) and the recurrence *parameters* (interval, strategy, anchors). The per-target *state* lives in `recurring_rule_schedules` rows: `recurring_rule_id`, `asset_id` (nullable), `next_due_at`, `last_completed_at`, `is_active`. A rule attached to 4 smoke detectors has 4 schedule rows; completing detector #3's work item advances only detector #3's row. A rule with no asset target (e.g. gutter cleaning against a location) has a single schedule row with `asset_id = null`. `next_due_at` therefore lives on the schedule row, **not** on the rule. This kills the duplicated-rule problem: the procedure is defined once, and attaching another asset is one row, not a cloned rule.
-- Occurrence math otherwise exactly as `prompts/04`, including the season year-boundary convention.
+- Occurrence math otherwise exactly as `specs/04`, including the season year-boundary convention.
 - First-time activation for **all** window strategies (#10, generalizing the `calendar_season` rule): if today (home TZ) is inside the current window, the first occurrence uses the current window; otherwise the next upcoming one. For `rolling_window` with `reschedule_from = completed_at` and no prior completion, the first window starts today.
 - Recurrence-advancing results: `done`, `passed`, `fixed`, `skipped`. Anything else with `only_after_success = true` leaves the schedule row's `next_due_at` untouched; the follow-up toggle in the Complete action covers the retry path.
 - `auto_create_days_before_due` defaults to `14` when null.
@@ -86,7 +86,7 @@ This resolves the 180-day-lookahead vs 14-day-materialization contradiction in f
 - All `currency` columns are ISO 4217 3-letter codes; `homes.default_currency` default `'HUF'`.
 - No conversion in MVP. `CostForecastService` groups totals **per currency**; the home's default currency bucket is shown first. Mixed-currency homes see two numbers rather than one wrong number.
 - Actual cost of a work item is always `SUM(expenses.amount)` grouped by currency — no `actual_cost` column.
-- Cost category inference order as `prompts/08`, with **direct tags on the expense** checked first (#25), then work item tag → rule tag → primary asset tag → asset type → location tag → performer contact type → `cost-general-maintenance`.
+- Cost category inference order as `specs/08`, with **direct tags on the expense** checked first (#25), then work item tag → rule tag → primary asset tag → asset type → location tag → performer contact type → `cost-general-maintenance`.
 
 ## DIY vs contractor, and equipment
 
@@ -99,7 +99,7 @@ This resolves the 180-day-lookahead vs 14-day-materialization contradiction in f
 - `paperless_links` and `external_links` accept the **same** polymorphic target set: `assets`, `work_items`, `locations`, `contacts`, `recurring_rules`, `expenses` (#4 — union of both lists).
 - `paperless_document_id` null means "URL points at a Paperless view that is not a single document" (saved search, tag view) (#26).
 - `photos` table owns app metadata (`type`, `taken_at`, `caption`, `notes`, `sort_order`); `spatie/laravel-medialibrary` owns files, conversions, thumbnails. One `Photo` row has one media item.
-- Contact display photo = latest `type = profile` photo by `taken_at`, fallback `created_at` (no `profile_photo_id` column), per `prompts/02`.
+- Contact display photo = latest `type = profile` photo by `taken_at`, fallback `created_at` (no `profile_photo_id` column), per `specs/02`.
 
 ## Locale (#3)
 
@@ -112,14 +112,14 @@ This resolves the 180-day-lookahead vs 14-day-materialization contradiction in f
 ## Misc schema details
 
 - `taggables` gets `created_at` (#24).
-- Indexes as listed in `prompts/02`, plus `unique(home_id, user_id)` on `home_users` and `recurring_rule_schedules(recurring_rule_id, asset_id)` unique, minus indexes for dropped columns (`severity`), the dropped `work_item_assets` table, and `recurring_rules.next_due_at` (now on the schedule rows).
+- Indexes as listed in `specs/02`, plus `unique(home_id, user_id)` on `home_users` and `recurring_rule_schedules(recurring_rule_id, asset_id)` unique, minus indexes for dropped columns (`severity`), the dropped `work_item_assets` table, and `recurring_rules.next_due_at` (now on the schedule rows).
 - "Duplicate N times" numbering pattern zero-pads by default: `{n}` renders `01`–`09` when N ≥ 10 (#32). The action clones the asset and **attaches the clones to the source asset's rules** (new schedule rows) — rules themselves are never cloned.
 - Activity logging is **mandatory and installed in Phase 2**, before the first domain model exists — the log only records from installation onward, and asset history is a core purpose, not polish. Each model adds `LogsActivity` in the phase that creates it; covered models: `Home` (+ membership changes), `Location`, `Asset`, `WorkItem`, `WorkItemResult`, `RecurringRule` (#6), `Contact`, `Expense`. Timeline UI ships with the asset detail page (Phase 11).
 - Required Postgres extensions: none for MVP (FTS deferred with S5). Document `pg_trgm` as the future search prerequisite (#27).
 
 ## Application structure
 
-Per `prompts/08`, a modular monolith:
+Per `specs/08`, a modular monolith:
 
 ```text
 app/

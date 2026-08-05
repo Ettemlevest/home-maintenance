@@ -1,6 +1,6 @@
 # Seed Data — "Hungarian family house" template
 
-The opt-in template applied at home creation (Phase 16). It replaces the draft seed lists in `prompts/06-seed-data.md`, which predate the model decisions in [`02-technical-decisions.md`](./02-technical-decisions.md). Beyond bootstrapping a home, this file is the **worked example of the data model**: every entry demonstrates the location/asset boundary rule, the four work item types, multi-asset schedule rows, and the doer/equipment fields.
+The opt-in template applied at home creation (Phase 16). It replaces the draft seed lists in `specs/06-seed-data.md`, which predate the model decisions in [`02-technical-decisions.md`](./02-technical-decisions.md). Beyond bootstrapping a home, this file is the **worked example of the data model**: every entry demonstrates the location/asset boundary rule, the four work item types, multi-asset schedule rows, and the doer/equipment fields.
 
 Seeding principles:
 

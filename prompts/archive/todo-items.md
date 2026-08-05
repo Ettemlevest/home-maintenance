@@ -1,5 +1,7 @@
 # Planning Review — TODO Items
 
+> **Status: archived.** Every item below is resolved in [`../plan/02-technical-decisions.md`](../plan/02-technical-decisions.md), which references them by these #numbers. Kept as the numbering lookup table.
+
 Open items found during a cross-check of the planning docs (`README.md` → `01`–`10`). Grouped by category. Each item references the source file(s) so the fix can be made in-place.
 
 ---

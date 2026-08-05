@@ -1,5 +1,7 @@
 # Integrations: Calendar, Paperless-ngx, External Links
 
+> **Status: source spec.** Authoritative for feature intent. Where [`../plan/`](../plan/) decides otherwise (scope, schema, work item types), the plan wins.
+
 ## Integration philosophy
 
 Integrations should consume maintenance data but should not own maintenance logic.

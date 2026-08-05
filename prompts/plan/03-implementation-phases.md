@@ -25,7 +25,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 
 **Goal:** an empty Laravel app with the full quality toolchain, so every later phase lands on green CI.
 
-- Create the Laravel app (latest stable — Laravel 13.x on PHP 8.5 at time of writing) in a fresh repo; PostgreSQL 18 via a local `docker-compose.yml` (app runs natively, only Postgres in Docker).
+- Create the Laravel app (latest stable — Laravel 13.x on PHP 8.5 at time of writing) **in this repository**: the app skeleton lands at the repo root, alongside `prompts/` (scaffold in a temporary directory and move into place — installers want an empty target). Extend `.gitignore` with the standard Laravel entries as part of this step. PostgreSQL 18 via a local `docker-compose.yml` (app runs natively, only Postgres in Docker).
 - Install and configure Pest, Pint, PHPStan + Larastan (level 6), Rector.
 - GitHub Actions workflow: pint --test, phpstan, pest, on every push.
 - Set `app.timezone = UTC`. Create `config/maintenance.php` with `recently_completed_days => 14`.
@@ -70,7 +70,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 - `LocationType` PHP enum with lang-file labels.
 - Filament resource: list grouped/indented by parent, parent select scoped to the same home, reorderable by `sort_order`.
 
-**Done when:** the full seed location tree from `prompts/06` can be entered by hand and displays hierarchically.
+**Done when:** the full seed location tree from `specs/06` can be entered by hand and displays hierarchically.
 
 ### Phase 4: Assets
 
@@ -91,7 +91,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 
 - `work_items` migration per schema with the simplifications from `01-mvp-scope-and-simplifications.md`: single `asset_id` (S1), **no** `severity` (S2), **no** `actual_minutes` (S3), plus `doer` (diy/contractor, nullable) and `needs_special_equipment` (boolean). CHECK constraint on the due window pair. Enums: `WorkItemType` (**four values**, S11: task, inspection, repair, replacement), `WorkItemStatus`, `WorkItemPriority`, `WorkItemSource`, `WorkItemDoer`.
 - `WorkItemDueStateService`: computes `upcoming` / `due_now` / `overdue` / `needs_attention` / `completed_recently` and the urgency tier (0–33/34–66/67–90/91–100/overdue) in the home's timezone. **Exhaustive Pest coverage** — this is one of the two core services.
-- Filament resource: list with computed due-state badge column, filters (status, type, priority, asset, location, doer, needs special equipment), form with either hard due date or due window (mutually exclusive UI), status transitions per the allowed matrix in `prompts/03`.
+- Filament resource: list with computed due-state badge column, filters (status, type, priority, asset, location, doer, needs special equipment), form with either hard due date or due window (mutually exclusive UI), status transitions per the allowed matrix in `specs/03`.
 
 **Done when:** a work item moves draft → open → completed/failed/blocked/cancelled through the UI; due-state service tests cover every boundary (window edges, hard due day, TZ midnight).
 
@@ -116,7 +116,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 
 - `DashboardQueryService` backed by `WorkItemDueStateService`.
 - Filament dashboard widgets in order: **Needs Attention** (failed + blocked), **Overdue**, **Due Now**, **Upcoming Next 30 Days**, **Recently Completed** (last 14 days, config constant).
-- Visual treatment + sort per the urgency table in `prompts/07`, tiebreak by priority then due date.
+- Visual treatment + sort per the urgency table in `specs/07`, tiebreak by priority then due date.
 - Each row links to the work item; the Complete action is available directly from dashboard rows.
 
 **Done when:** seeded scenario data appears in the correct sections with correct badges; empty states are friendly, not blank.
@@ -131,7 +131,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 - Hook into the Complete action: an advancing result on a rule-generated work item recalculates `next_due_at` **on that work item's schedule row only** — sibling assets on the same rule are untouched.
 - Filament resource for rules: form with strategy-dependent conditional fields, attached-assets management (attach/detach/pause per asset), earliest "next due" column, activate/deactivate toggle.
 
-**Done when:** a monthly rolling-window rule generates an item, completing it advances its schedule row correctly; failing it does not; a rule attached to 3 assets generates 3 independent work items and completing one advances only that asset's schedule; season and `previous_due_at` worked examples from `prompts/04` pass as literal test cases.
+**Done when:** a monthly rolling-window rule generates an item, completing it advances its schedule row correctly; failing it does not; a rule attached to 3 assets generates 3 independent work items and completing one advances only that asset's schedule; season and `previous_due_at` worked examples from `specs/04` pass as literal test cases.
 
 ---
 
@@ -182,7 +182,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 - `calendar_feeds` minimal migration (S4): `home_id`, `user_id` nullable, `name`, `token` (unique), `is_active`, `lookahead_days` (default 180).
 - Auto-create one feed per home on home creation.
 - Public route `GET /calendar/{token}.ics` (unguessable token is the auth).
-- `IcsFeedGenerator` + `CalendarEventBuilder`: events for open work items (window start / 85% / end / overdue; single event for hard due dates), emoji title prefixes by type, description from the placeholder list in `prompts/05`; **plus virtual projected events** for unmaterialized rule occurrences within the lookahead (decision in `02-technical-decisions.md`).
+- `IcsFeedGenerator` + `CalendarEventBuilder`: events for open work items (window start / 85% / end / overdue; single event for hard due dates), emoji title prefixes by type, description from the placeholder list in `specs/05`; **plus virtual projected events** for unmaterialized rule occurrences within the lookahead (decision in `02-technical-decisions.md`).
 - "Regenerate feed URL" action rotating `token`.
 - Validate output against an ICS validator in tests.
 
@@ -227,4 +227,4 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 
 ## After MVP
 
-Deployment (Docker image, Unraid template, compose file), notifications, Home Assistant, Paperless webhooks, QR label sheets, permissions enforcement, MNB currency conversion — all tracked in [`../prompts/10-future-plans.md`](../prompts/10-future-plans.md). Nothing in M1–M6 blocks any of them.
+Deployment (Docker image, Unraid template, compose file), notifications, Home Assistant, Paperless webhooks, QR label sheets, permissions enforcement, MNB currency conversion — all tracked in [`../specs/10-future-plans.md`](../specs/10-future-plans.md). Nothing in M1–M6 blocks any of them.

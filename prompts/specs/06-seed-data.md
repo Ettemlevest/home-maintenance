@@ -1,5 +1,7 @@
 # Seed Data
 
+> **Status: superseded.** The seed template now lives in [`../plan/04-seed-data.md`](../plan/04-seed-data.md), rebuilt on the current model. Kept for history.
+
 ## Purpose
 
 The app should be useful immediately after creating a home. Seed data should create basic tags, initial locations, known or expected major assets, and starter recurring rules.
