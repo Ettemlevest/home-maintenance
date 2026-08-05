@@ -86,9 +86,9 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 
 **Goal:** one-off tasks can be tracked from creation to completion — the app is already minimally useful.
 
-- `work_items` migration per schema with the simplifications from `01-mvp-scope-and-simplifications.md`: single `asset_id` (S1), **no** `severity` (S2), **no** `actual_minutes` (S3). CHECK constraint on the due window pair. Enums: `WorkItemType`, `WorkItemStatus`, `WorkItemPriority`, `WorkItemSource`.
+- `work_items` migration per schema with the simplifications from `01-mvp-scope-and-simplifications.md`: single `asset_id` (S1), **no** `severity` (S2), **no** `actual_minutes` (S3), plus `doer` (diy/contractor, nullable) and `needs_special_equipment` (boolean). CHECK constraint on the due window pair. Enums: `WorkItemType` (**four values**, S11: task, inspection, repair, replacement), `WorkItemStatus`, `WorkItemPriority`, `WorkItemSource`, `WorkItemDoer`.
 - `WorkItemDueStateService`: computes `upcoming` / `due_now` / `overdue` / `needs_attention` / `completed_recently` and the urgency tier (0–33/34–66/67–90/91–100/overdue) in the home's timezone. **Exhaustive Pest coverage** — this is one of the two core services.
-- Filament resource: list with computed due-state badge column, filters (status, type, priority, asset, location), form with either hard due date or due window (mutually exclusive UI), status transitions per the allowed matrix in `prompts/03`.
+- Filament resource: list with computed due-state badge column, filters (status, type, priority, asset, location, doer, needs special equipment), form with either hard due date or due window (mutually exclusive UI), status transitions per the allowed matrix in `prompts/03`.
 
 **Done when:** a work item moves draft → open → completed/failed/blocked/cancelled through the UI; due-state service tests cover every boundary (window edges, hard due day, TZ midnight).
 
@@ -122,13 +122,13 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 
 **Goal:** the app starts generating work instead of only recording it. This is the heart of the product.
 
-- `recurring_rules` + migration per schema (no `severity`, per S2; includes `reminder_days_before` unused per S10). Enums for `interval_unit`, `reschedule_from`, `window_strategy`, `anchor_season`.
+- `recurring_rules` migration (definition + recurrence parameters; no `severity` per S2, no `next_due_at`; includes `doer`, `needs_special_equipment`, `reminder_days_before` unused per S10) **plus `recurring_rule_schedules`** (per S12: `asset_id` nullable, `next_due_at`, `last_completed_at`, `is_active`, unique on rule + asset) — one rule defines a procedure once, schedule rows attach it to any number of assets with independent due dates. Enums for `interval_unit`, `reschedule_from`, `window_strategy`, `anchor_season`.
 - `RecurrenceService`: next-occurrence math for all `window_strategy` × `reschedule_from` combinations, season year-boundary convention, first-activation rule, `only_after_success` gating on `done`/`passed`/`fixed`/`skipped`. **Exhaustive Pest coverage** — the other core service.
-- Daily scheduled job: for each active rule with `next_due_at <= today + auto_create_days_before_due` (default 14), materialize a work item (`status = open`, `source = recurring_rule`, copying title/description/type/priority/location/asset/estimates/free-text fields) unless an open one for that occurrence already exists (idempotent).
-- Hook into the Complete action: an advancing result on a rule-generated work item recalculates and stores `next_due_at`.
-- Filament resource for rules: form with strategy-dependent conditional fields, "next due" column, activate/deactivate toggle.
+- Daily scheduled job: for each active schedule row with `next_due_at <= today + auto_create_days_before_due` (default 14), materialize a work item (`status = open`, `source = recurring_rule`, copying title/description/type/priority/location/estimates/doer/equipment/free-text fields from the rule, `asset_id` from the schedule row) unless an open one for that occurrence already exists (idempotent).
+- Hook into the Complete action: an advancing result on a rule-generated work item recalculates `next_due_at` **on that work item's schedule row only** — sibling assets on the same rule are untouched.
+- Filament resource for rules: form with strategy-dependent conditional fields, attached-assets management (attach/detach/pause per asset), earliest "next due" column, activate/deactivate toggle.
 
-**Done when:** a monthly rolling-window rule generates an item, completing it advances `next_due_at` correctly; failing it does not; season and `previous_due_at` worked examples from `prompts/04` pass as literal test cases.
+**Done when:** a monthly rolling-window rule generates an item, completing it advances its schedule row correctly; failing it does not; a rule attached to 3 assets generates 3 independent work items and completing one advances only that asset's schedule; season and `previous_due_at` worked examples from `prompts/04` pass as literal test cases.
 
 ---
 
@@ -145,12 +145,12 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 
 ### Phase 10: Contacts + expenses
 
-- `contacts`, `work_item_contacts` (role enum), `expenses` migrations per schema.
+- `contacts`, `work_item_contacts` (role enum), `expenses` migrations per schema; add `preferred_contact_id` (nullable, set null) to `recurring_rules` — generated work items carry who to call.
 - Filament resources: contacts (with click-to-call `tel:` links on mobile); expenses (standalone list + relation manager on work items and assets).
 - Work item view shows actual cost = expense sum per currency next to `estimated_cost`.
-- Contacts attachable to work items with roles (performer, inspector, …).
+- Contacts attachable to work items with roles (performer, inspector, …); asset view shows past performers from `work_item_contacts` history.
 
-**Done when:** "which contractor performed this?" is answerable from a work item; expense sums render per currency.
+**Done when:** "which contractor performed this?" is answerable from a work item and from the asset's past-performers list; a rule's preferred contact appears on its generated items; expense sums render per currency.
 
 ### Phase 11: Photos
 

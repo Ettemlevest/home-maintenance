@@ -11,7 +11,8 @@ The source docs (`prompts/01`–`10`) describe the full product vision. This doc
 - Work items with the 6-status lifecycle, due windows and hard deadlines, computed due states
 - Work item results (multiple per item, latest wins)
 - Composite mobile "Complete" action (result + photo + measured value + summary in one form)
-- Recurring rules with all four window strategies and all three reschedule modes
+- Recurring rules with all four window strategies and all three reschedule modes, attachable to **multiple assets** with independent per-asset schedules
+- DIY vs contractor marking (`doer`), special-equipment flag for batching rented-tool work, preferred contact on rules
 - Daily scheduled job materializing upcoming work items
 - Tags + polymorphic tagging
 - Contacts (with `work_item_contacts` roles) and expenses
@@ -40,6 +41,15 @@ These are deviations from `prompts/02`–`08`. Each is a deliberate call; if rea
 | S8 | Registration/invite flow unspecified (`todo-items.md` #22) | No self-registration. The home owner creates member accounts from a Users page inside the panel. | Simplest possible auth surface for a self-hosted family app. Invite links are post-MVP. |
 | S9 | In-app Filament notifications (`08`) | Not in MVP. The dashboard and the ICS feed are the two notification surfaces. | Matches `05`: "ICS feed is the only notification surface in MVP". |
 | S10 | `reminder_days_before` consumed by a daily reminder job (`08`) | Column exists on `recurring_rules` but nothing consumes it yet. | No delivery channel is committed in MVP (`10`); carrying the column is free. |
+| S11 | 10 work item types (`02`, `03`) | **4 types: `task`, `inspection`, `repair`, `replacement`.** `maintenance`/`cleaning` → `task` (+ tags), `test` → `inspection`, `installation`/`upgrade` → `replacement`, `project` → an umbrella work item with children via `parent_id`. | A type earns its place only if the app behaves differently for it. Ten overlapping labels force pointless entry-time decisions; four map one-to-one onto distinct result vocabularies. |
+| S12 | One recurring rule per asset; "Duplicate N times" clones rules (`06`, `07`) | **One rule, many schedule rows** (`recurring_rule_schedules` with per-asset `next_due_at`). Duplicate N attaches clones to the source's existing rules. | Defines a procedure once for 9 smoke detectors instead of 9 near-identical rules; a procedure change is one edit, not nine. |
+
+## Additions relative to the source docs
+
+- `homes.latitude` / `homes.longitude` (GPS coordinates; stored, no MVP consumer)
+- `doer` (`diy`/`contractor`) on work items and recurring rules — replaces the draft `contractor-needed` tag
+- `needs_special_equipment` flag on work items and recurring rules — batching filter for rented-tool work
+- `recurring_rules.preferred_contact_id` — generated items carry who to call
 
 ## Deferred (post-MVP, per `prompts/10-future-plans.md`)
 
