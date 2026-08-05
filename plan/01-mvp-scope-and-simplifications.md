@@ -17,6 +17,7 @@ The source docs (`prompts/01`–`10`) describe the full product vision. This doc
 - Tags + polymorphic tagging
 - Contacts (with `work_item_contacts` roles) and expenses
 - Photos via medialibrary, with photo timeline on assets
+- Activity log (who-did-what-when) recording from the very first domain model, with timeline panels on assets and work items
 - Paperless-ngx links and external links (reference-only, symmetric polymorphic targets)
 - One ICS calendar feed per home, token-rotatable
 - Dashboard: Needs Attention / Overdue / Due Now / Upcoming 30 Days / Recently Completed / Expected Cost

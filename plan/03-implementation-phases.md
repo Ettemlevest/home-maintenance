@@ -5,15 +5,17 @@ Small, incremental steps. Each phase is independently shippable: the app works, 
 Migrations are created in the phase that introduces the table. Columns for stated future use (e.g. `home_users.role`, `recurring_rules.reminder_days_before`) are included in their table's original migration because carrying a column is free; whole tables are never created early.
 
 ```text
-M1 Foundation        P0 scaffold · P1 Filament + auth · P2 homes + tenancy
+M1 Foundation        P0 scaffold · P1 Filament + auth · P2 homes + tenancy + activity log
 M2 Core data         P3 locations · P4 assets · P5 work items
 M3 Daily usefulness  P6 results + Complete action · P7 dashboard v1 · P8 recurring rules
-M4 Enrichment        P9 tags · P10 contacts + expenses · P11 photos · P12 links
+M4 Enrichment        P9 tags · P10 contacts + expenses · P11 photos + timelines · P12 links
 M5 Integrations      P13 ICS feed · P14 cost forecast
-M6 Polish            P15 steps · P16 seed data + duplicate · P17 i18n + mobile · P18 activity log
+M6 Polish            P15 steps · P16 seed data + duplicate · P17 i18n + mobile
 ```
 
-MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship after first real-world use.
+MVP = M1–M5 + P16 + P17. P15 is an optional enhancement that can ship after first real-world use.
+
+Activity logging is **mandatory and starts in Phase 2** — before the first domain model exists — because the log only records from installation onward, and "what happened to this asset in the past" is a core purpose of the app, not a polish feature. Every phase that creates a domain model adds `LogsActivity` to it in that same phase; the timeline UI ships with the asset detail page work in Phase 11.
 
 ---
 
@@ -52,8 +54,9 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 - Configure Filament tenancy with `Home` as tenant: tenant registration page ("create your home"), tenant switcher.
 - `BelongsToHome` trait (tenant global scope + `home_id` auto-fill on create).
 - Members page inside the panel: the owner creates member accounts (name, email, password, role) and can detach them.
+- Install and configure `spatie/laravel-activitylog` **now**, so no domain model ever exists without history. Convention from here on: every domain model adds `LogsActivity` in the phase that creates it (locations in P3, assets in P4, work items in P5, …). First consumers: `Home` and home membership changes (who added/removed whom).
 
-**Done when:** Pest test proves user in home A cannot query or route to home B's data; a second home can be created and switched to.
+**Done when:** Pest test proves user in home A cannot query or route to home B's data; a second home can be created and switched to; adding a member leaves an activity log entry with the acting user as causer.
 
 ---
 
@@ -152,15 +155,16 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 
 **Done when:** "which contractor performed this?" is answerable from a work item and from the asset's past-performers list; a rule's preferred contact appears on its generated items; expense sums render per currency.
 
-### Phase 11: Photos
+### Phase 11: Photos + asset timelines
 
 - Install `spatie/laravel-medialibrary`. `photos` metadata table per schema; `Photo` morphs to assets, work_items, locations, contacts; each `Photo` owns one media item (original + thumbnail conversion).
 - Upload UI (camera-capable file input) on asset, work item, contact, location pages; `PhotoType` enum.
 - Photo timeline section on the asset view page, ordered by `taken_at` fallback `created_at`.
+- **Activity timeline panel** on the asset view page (sibling to the photo timeline) and on work items — rendering the history the activity log has been recording since Phase 2.
 - Add optional photo upload to the composite Complete action (completing Phase 6's form).
 - Contact avatar = latest `profile` photo.
 
-**Done when:** phone-camera upload works in the Complete action; asset timeline shows photos chronologically.
+**Done when:** phone-camera upload works in the Complete action; asset timeline shows photos chronologically; "Anna marked the FI relay test as failed at 18:43" style entries appear on the asset page, including events from before this phase.
 
 ### Phase 12: Paperless links + external links
 
@@ -218,13 +222,6 @@ MVP = M1–M5 + P16 + P17. P15 and P18 are optional enhancements that can ship a
 - Mobile QA pass on the money flows: dashboard → work item → Complete action → photo upload; `/a/{slug}` scan-to-asset; click-to-call.
 
 **Done when:** switching user locale flips the whole panel; the Complete flow works one-handed on a real phone.
-
-### Phase 18: Activity log (optional)
-
-- Install `spatie/laravel-activitylog` on `Asset`, `WorkItem`, `WorkItemResult`, `Expense`, `Contact`, `RecurringRule`.
-- Activity timeline panel on the asset view page (sibling to the photo timeline) and on work items.
-
-**Done when:** "Anna marked the FI relay test as failed at 18:43" style entries appear on the asset page.
 
 ---
 

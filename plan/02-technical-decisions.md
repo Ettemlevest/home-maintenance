@@ -114,7 +114,7 @@ This resolves the 180-day-lookahead vs 14-day-materialization contradiction in f
 - `taggables` gets `created_at` (#24).
 - Indexes as listed in `prompts/02`, plus `unique(home_id, user_id)` on `home_users` and `recurring_rule_schedules(recurring_rule_id, asset_id)` unique, minus indexes for dropped columns (`severity`), the dropped `work_item_assets` table, and `recurring_rules.next_due_at` (now on the schedule rows).
 - "Duplicate N times" numbering pattern zero-pads by default: `{n}` renders `01`–`09` when N ≥ 10 (#32). The action clones the asset and **attaches the clones to the source asset's rules** (new schedule rows) — rules themselves are never cloned.
-- Activity log (late phase) covers `Asset`, `WorkItem`, `WorkItemResult`, `Expense`, `Contact`, **and `RecurringRule`** (#6).
+- Activity logging is **mandatory and installed in Phase 2**, before the first domain model exists — the log only records from installation onward, and asset history is a core purpose, not polish. Each model adds `LogsActivity` in the phase that creates it; covered models: `Home` (+ membership changes), `Location`, `Asset`, `WorkItem`, `WorkItemResult`, `RecurringRule` (#6), `Contact`, `Expense`. Timeline UI ships with the asset detail page (Phase 11).
 - Required Postgres extensions: none for MVP (FTS deferred with S5). Document `pg_trgm` as the future search prerequisite (#27).
 
 ## Application structure
