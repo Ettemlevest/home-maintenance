@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    services:
+      pgsql:
+        image: postgres:18
+        env:
+          POSTGRES_DB: home_maintenance_test
+          POSTGRES_USER: home_maintenance
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -q -d home_maintenance_test -U home_maintenance"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_pgsql, pgsql, intl, zip, gd, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Pint
+        run: vendor/bin/pint --test
+
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=1G --error-format=github
+
+      - name: Pest
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: home_maintenance_test
+          DB_USERNAME: home_maintenance
+          DB_PASSWORD: secret
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test

@@ -1,0 +1,25 @@
+services:
+    pgsql:
+        image: 'postgres:18'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            POSTGRES_DB: '${DB_DATABASE:-home_maintenance}'
+            POSTGRES_USER: '${DB_USERNAME:-home_maintenance}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'pgsql-data:/var/lib/postgresql'
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE:-home_maintenance}'
+                - '-U'
+                - '${DB_USERNAME:-home_maintenance}'
+            interval: 5s
+            retries: 5
+
+volumes:
+    pgsql-data:
