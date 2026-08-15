@@ -58,6 +58,7 @@
         "check": [
             "@php vendor/bin/pint --test",
             "@composer analyse",
+            "@php vendor/bin/rector --dry-run",
             "@composer test"
         ],
         "post-autoload-dump": [

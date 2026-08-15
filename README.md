@@ -26,7 +26,7 @@ composer run test      # Pest (local default: sqlite in-memory; CI runs against 
 composer run format    # Pint
 composer run analyse   # PHPStan + Larastan, level 6
 composer run refactor  # Rector
-composer run check     # pint --test + phpstan + pest — same as CI
+composer run check     # pint --test + phpstan + rector --dry-run + pest — same as CI
 ```
 
-CI runs `check` on every push via GitHub Actions.
+CI runs two parallel jobs on every push via GitHub Actions: **Tests** (Pest against Postgres 18) and **Code quality** (Pint, PHPStan, Rector dry-run).
