@@ -4,7 +4,7 @@ Read [`prompts/README.md`](./prompts/README.md) first: the implementation plan l
 
 ## Stack
 
-- PHP 8.5+ (Laravel Herd locally: `php85`), Laravel 13.x, PostgreSQL 18 (Docker via `docker-compose.yml`; the app runs natively)
+- PHP 8.5+ (Laravel Herd locally: `php85`), Laravel 13.x, PostgreSQL 18, Redis (cache) — database and cache are externally managed services, not part of the repo
 - FilamentPHP 5.x, single panel, native multi-tenancy with `Home` as tenant (from Phase 1–2)
 - Pest for tests, Pint for formatting, PHPStan + Larastan level 6, Rector
 
@@ -12,7 +12,7 @@ Read [`prompts/README.md`](./prompts/README.md) first: the implementation plan l
 
 | Command | Purpose |
 |---|---|
-| `composer run setup` | .env, key, Postgres up, migrate, npm build |
+| `composer run setup` | .env, key, migrate, npm build |
 | `composer run dev` | serve + queue + logs + vite |
 | `composer run test` | Pest (local default: sqlite in-memory; CI: Postgres 18) |
 | `composer run format` | Pint |

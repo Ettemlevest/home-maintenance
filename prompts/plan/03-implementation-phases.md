@@ -25,7 +25,7 @@ Activity logging is **mandatory and starts in Phase 2** — before the first dom
 
 **Goal:** an empty Laravel app with the full quality toolchain, so every later phase lands on green CI.
 
-- Create the Laravel app (latest stable — Laravel 13.x on PHP 8.5 at time of writing) **in this repository**: the app skeleton lands at the repo root, alongside `prompts/` (scaffold in a temporary directory and move into place — installers want an empty target). Extend `.gitignore` with the standard Laravel entries as part of this step. PostgreSQL 18 via a local `docker-compose.yml` (app runs natively, only Postgres in Docker).
+- Create the Laravel app (latest stable — Laravel 13.x on PHP 8.5 at time of writing) **in this repository**: the app skeleton lands at the repo root, alongside `prompts/` (scaffold in a temporary directory and move into place — installers want an empty target). Extend `.gitignore` with the standard Laravel entries as part of this step. PostgreSQL 18 and Redis are externally managed services (locally via Laravel Herd) — nothing containerized in local dev.
 - Install and configure Pest, Pint, PHPStan + Larastan (level 6), Rector.
 - GitHub Actions workflow: pint --test, phpstan, pest, on every push.
 - Set `app.timezone = UTC`. Create `config/maintenance.php` with `recently_completed_days => 14`.

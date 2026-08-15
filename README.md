@@ -8,13 +8,14 @@ The implementation plan and product vision live in [`prompts/`](./prompts/README
 
 - PHP 8.5+ (locally via [Laravel Herd](https://herd.laravel.com): `php85`)
 - Composer, Node.js + npm
-- Docker (only for PostgreSQL — the app itself runs natively)
+- PostgreSQL 18
+- Redis (cache)
 
 ## Getting started
 
 ```bash
 composer install
-composer run setup   # .env + app key, starts Postgres 18 in Docker, migrates, builds assets
+composer run setup   # .env + app key, migrates, builds assets (needs a running Postgres)
 composer run dev     # server + queue + logs + vite
 ```
 
